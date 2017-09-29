@@ -8,45 +8,50 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum : NSUInteger {
+    HNetworkStateUnknown = 0,
+    HNetworkStateNotReachable = 1,
+    HNetworkStateWifi,
+    HNetworkState4G,
+    HNetworkState3G,
+    HNetworkState2G,
+    HNetworkStateWan
+} HNetworkState;
+
+extern NSString *const HNetworkStateChangeKey;
+
 @interface HApiManager : NSObject
 
-/**
- 发送getter请求
++(HApiManager *)defaultManager;
 
- @param path 请求网址
- @param params 请求参数
- @param success 请求成功的block
- @param failure 请求失败的block
- @return NSURLSessionDataTask
- */
+- (NSURLSessionDataTask *)GET:(NSString *)path parameters:(NSDictionary *)params success:(void(^)(id result))success failure:(void(^)(NSError *error))failure;
 + (NSURLSessionDataTask *)GET:(NSString *)path parameters:(NSDictionary *)params success:(void(^)(id result))success failure:(void(^)(NSError *error))failure;
 
-/**
- 发送post请求
- 
- @param path 请求网址
- @param params 请求参数
- @param success 请求成功的block
- @param failure 请求失败的block
- @return NSURLSessionDataTask
- */
+- (NSURLSessionDataTask *)Post:(NSString *)path parameters:(NSDictionary *)params success:(void(^)(id result))success failure:(void(^)(NSError *error))failure;
 + (NSURLSessionDataTask *)Post:(NSString *)path parameters:(NSDictionary *)params success:(void(^)(id result))success failure:(void(^)(NSError *error))failure;
 
 /**
  将含有中文的请求路径，转换成带%号的参数，主要用于get请求
-
- @param path 请求网址
- @param params 请求参数
- @return 完整路径
  */
+- (NSString *)percentPathWithPath:(NSString *)path params:(NSDictionary *)params;
 + (NSString *)percentPathWithPath:(NSString *)path params:(NSDictionary *)params;
 
+/** 网络状态*/
+- (HNetworkState)networkState;
++ (HNetworkState)networkState;
+
+/** 枚举转文字描述*/
+- (NSString *)stringForNetworkState:(HNetworkState)state;
++ (NSString *)stringForNetworkState:(HNetworkState)state;
 
 /**
- 监听网路变化
-
- @param result 回调block
+ 监听网路变化:网络改变，会发通知出来HNetworkChangeKey userInfo:{@"oldState":@"",@"newState":@""}
  */
-+ (void)startMonitorNetworkChange:(void(^)(BOOL has))result;
++ (void)startMonitorNetworkChange;
+/**
+ 停止监听网路
+ */
 + (void)stopMonitorNetworkChange;
+
 @end
+
